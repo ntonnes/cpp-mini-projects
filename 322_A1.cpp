@@ -88,6 +88,9 @@ int main() {
     // Example of using the getUserDetails function
     getUserDetails();
 
+    // Example of using the get_bfp function
+    auto result = get_bfp(waist, neck, height, hip, gender, age);
+
     // Displaying the gathered information (for demonstration purposes)
     std::cout << "\nUser Details:\n";
     std::cout << "Gender: " << gender << "\n";
@@ -101,6 +104,9 @@ int main() {
     if (gender == "female") {
         std::cout << "Hip Measurement: " << hip << " cm\n";
     }
+
+    std::cout << "\nBody Fat Percentage: " << result.first << "%\n";
+    std::cout << "Group: " << result.second << "\n";
 
     return 0;
 }
