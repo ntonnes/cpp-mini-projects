@@ -1,5 +1,7 @@
 #include <iostream>
+#include <cmath>
 #include <string>
+#include <utility>
 
 // Global variables to store user details
 std::string gender;
@@ -84,14 +86,56 @@ std::pair<int, std::string> get_bfp(double waist, double neck, double height, do
     return {static_cast<int>(BF_percentage), group};
 }
 
+int get_daily_calories(double age, std::string gender, std::string lifestyle) {
+    int daily_calories = 0;
+
+    if (gender == "male") {
+        if (age >= 19 && age <= 30) {
+            if (lifestyle == "sedentary") {
+                daily_calories = 2400;
+            } else if (lifestyle == "moderately active") {
+                daily_calories = 2600;
+            } else if (lifestyle == "active") {
+                daily_calories = 3000;
+            }
+        } else if (age >= 31 && age <= 50) {
+            // Similar logic for other age groups
+            // ...
+        } else if (age >= 51) {
+            // Similar logic for other age groups
+            // ...
+        }
+    } else if (gender == "female") {
+        if (age >= 19 && age <= 30) {
+            // Similar logic for other age groups
+            // ...
+        } else if (age >= 31 && age <= 50) {
+            // Similar logic for other age groups
+            // ...
+        } else if (age >= 51) {
+            // Similar logic for other age groups
+            // ...
+        }
+    } else {
+        // Handle invalid gender
+        std::cerr << "Invalid gender specified.\n";
+    }
+
+    return daily_calories;
+}
+
+
 int main() {
     // Example of using the getUserDetails function
     getUserDetails();
 
     // Example of using the get_bfp function
-    auto result = get_bfp(waist, neck, height, hip, gender, age);
+    auto bfp_result = get_bfp(waist, neck, height, hip, gender, age);
 
-    // Displaying the gathered information (for demonstration purposes)
+    // Example of using the get_daily_calories function
+    int daily_calories = get_daily_calories(age, gender, lifestyle);
+
+    // Displaying the gathered information and results (for demonstration purposes)
     std::cout << "\nUser Details:\n";
     std::cout << "Gender: " << gender << "\n";
     std::cout << "Age: " << age << " years\n";
@@ -105,8 +149,10 @@ int main() {
         std::cout << "Hip Measurement: " << hip << " cm\n";
     }
 
-    std::cout << "\nBody Fat Percentage: " << result.first << "%\n";
-    std::cout << "Group: " << result.second << "\n";
+    std::cout << "\nBody Fat Percentage: " << bfp_result.first << "%\n";
+    std::cout << "Group: " << bfp_result.second << "\n";
+
+    std::cout << "\nDaily Calorie Intake: " << daily_calories << " calories\n";
 
     return 0;
 }
