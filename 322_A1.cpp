@@ -43,6 +43,47 @@ void getUserDetails() {
     }
 }
 
+std::pair<int, std::string> get_bfp(double waist, double neck, double height, double hip, std::string gender, int age) {
+    double BF_percentage;
+
+    if (gender == "male") {
+        BF_percentage = 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450;
+    } else if (gender == "female") {
+        BF_percentage = 495 / (1.29579 - 0.35004 * log10(waist + hip - neck) + 0.22100 * log10(height)) - 450;
+    } else {
+        // Handle invalid gender
+        std::cerr << "Invalid gender specified.\n";
+        return {0, "Invalid"};
+    }
+
+    // Determine the body fat percentage group
+    std::string group;
+    if (gender == "female") {
+        if (age >= 20 && age <= 39) {
+            if (BF_percentage < 21) {
+                group = "<21";
+            } else if (BF_percentage >= 21 && BF_percentage < 32.9) {
+                group = "21.0-32.9";
+            } else if (BF_percentage >= 33 && BF_percentage < 38.9) {
+                group = "33.0-38.9";
+            } else {
+                group = ">=39";
+            }
+        } else if (age >= 40 && age <= 59) {
+            // Similar logic for other age groups
+            // ...
+        } else if (age >= 60 && age <= 79) {
+            // Similar logic for other age groups
+            // ...
+        }
+    } else if (gender == "male") {
+        // Similar logic for male age groups
+        // ...
+    }
+
+    return {static_cast<int>(BF_percentage), group};
+}
+
 int main() {
     // Example of using the getUserDetails function
     getUserDetails();
