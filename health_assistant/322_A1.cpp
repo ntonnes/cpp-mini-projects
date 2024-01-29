@@ -2,6 +2,9 @@
 #include <cmath>
 #include <string>
 #include <utility>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 // Global variables to store user details
 std::string gender;
@@ -244,10 +247,89 @@ void display() {
     std::cout << "Fat: " << fat << " grams\n";
 }
 
-int main() {
+void serialize(std::string filename) {
+    // Open the file in append mode to preserve existing data
+    std::ofstream file(filename, std::ios::app);
+
+    if (!file.is_open()) {
+        std::cerr << "Error opening file for serialization.\n";
+        return;
+    }
+
+    // Write user details to the file in CSV format
+    file << gender << "," << age << "," << weight << "," << waist << "," << neck << ",";
+
+    // Add hip measurement only for female users
+    if (gender == "female") {
+        file << hip << ",";
+    } else {
+        file << ",";
+    }
+
+    file << height << "," << lifestyle << "\n";
+
+    // Close the file
+    file.close();
+}
+
+void readFromFile(std::string filename) {
+    // Open the file for reading
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Error opening file for reading.\n";
+        return;
+    }
+
+    // Variables to temporarily store CSV values
+    std::string line;
+    std::string value;
+
+    // Read each line from the file
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::vector<std::string> values;
+
+        // Split the line into values using commas
+        while (std::getline(iss, value, ',')) {
+            values.push_back(value);
+        }
+
+        // Check if the line has enough values (at least 8 for all user details)
+        if (values.size() >= 8) {
+            gender = values[0];
+            age = std::stoi(values[1]);
+            weight = std::stod(values[2]);
+            waist = std::stod(values[3]);
+            neck = std::stod(values[4]);
+            hip = values[5] == "" ? 0.0 : std::stod(values[5]);
+            height = std::stod(values[6]);
+            lifestyle = values[7];
+        } else {
+            std::cerr << "Invalid line in the CSV file.\n";
+        }
+    }
+
+    // Close the file
+    file.close();
+}
+
+int main(int argc, char* argv[]) {
+    // Check if a filename is provided as a command-line argument
+    if (argc > 1) {
+        // Example of using the readFromFile function to load user data from a CSV file
+        readFromFile(argv[1]);
+    }
+
     // Example of using the getUserDetails function
     getUserDetails();
+
+    // Call the display function to show the information in a user-friendly format
     display();
+
+    // Example of using the serialize function to save user data to a CSV file
+    serialize("user_data.csv");
+
     return 0;
 }
 
