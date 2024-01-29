@@ -63,24 +63,70 @@ std::pair<int, std::string> get_bfp(double waist, double neck, double height, do
     if (gender == "female") {
         if (age >= 20 && age <= 39) {
             if (BF_percentage < 21) {
-                group = "<21";
+                group = "low";
             } else if (BF_percentage >= 21 && BF_percentage < 32.9) {
-                group = "21.0-32.9";
+                group = "normal";
             } else if (BF_percentage >= 33 && BF_percentage < 38.9) {
-                group = "33.0-38.9";
+                group = "high";
             } else {
-                group = ">=39";
+                group = "very high";
             }
         } else if (age >= 40 && age <= 59) {
-            // Similar logic for other age groups
-            // ...
+            if (BF_percentage < 23) {
+                group = "low";
+            } else if (BF_percentage >= 23 && BF_percentage < 33.9) {
+                group = "normal";
+            } else if (BF_percentage >= 34 && BF_percentage < 39.9) {
+                group = "high";
+            } else {
+                group = "very high";
+            }
         } else if (age >= 60 && age <= 79) {
-            // Similar logic for other age groups
-            // ...
+            if (BF_percentage < 24) {
+                group = "low";
+            } else if (BF_percentage >= 24 && BF_percentage < 35.9) {
+                group = "normal";
+            } else if (BF_percentage >= 36 && BF_percentage < 41.9) {
+                group = "high";
+            } else {
+                group = "very high";
+            }
         }
     } else if (gender == "male") {
-        // Similar logic for male age groups
-        // ...
+        if (age >= 20 && age <= 39) {
+            if (BF_percentage < 8) {
+                group = "low";
+            } else if (BF_percentage >= 8 && BF_percentage < 19.9) {
+                group = "normal";
+            } else if (BF_percentage >= 20 && BF_percentage < 24.9) {
+                group = "high";
+            } else {
+                group = "very high";
+            }
+        } else if (age >= 40 && age <= 59) {
+            if (BF_percentage < 11) {
+                group = "low";
+            } else if (BF_percentage >= 11 && BF_percentage < 21.9) {
+                group = "normal";
+            } else if (BF_percentage >= 22 && BF_percentage < 27.9) {
+                group = "high";
+            } else {
+                group = "very high";
+            }
+        } else if (age >= 60) {
+            if (BF_percentage < 13) {
+                group = "low";
+            } else if (BF_percentage >= 13 && BF_percentage <= 24.9) {
+                group = "normal";
+            } else if (BF_percentage >= 25 && BF_percentage <= 29.9) {
+                group = "high";
+            } else {
+                group = "very high";
+            }
+        } else {
+            std::cerr << "Invalid age specified.\n";
+            return {0, "Invalid"};
+        }
     }
 
     return {static_cast<int>(BF_percentage), group};
@@ -124,6 +170,23 @@ int get_daily_calories(double age, std::string gender, std::string lifestyle) {
     return daily_calories;
 }
 
+void meal_prep(int calories_input, double& carbs_output, double& protein_output, double& fat_output) {
+    // Constants for macronutrient calorie values
+    const int carb_calories = 4;
+    const int protein_calories = 4;
+    const int fat_calories = 9;
+
+    // Macronutrient breakdown percentages
+    const double carb_percentage = 0.5;
+    const double protein_percentage = 0.3;
+    const double fat_percentage = 0.2;
+
+    // Calculate grams for each macronutrient
+    carbs_output = (calories_input * carb_percentage) / carb_calories;
+    protein_output = (calories_input * protein_percentage) / protein_calories;
+    fat_output = (calories_input * fat_percentage) / fat_calories;
+}
+
 
 int main() {
     // Example of using the getUserDetails function
@@ -134,6 +197,10 @@ int main() {
 
     // Example of using the get_daily_calories function
     int daily_calories = get_daily_calories(age, gender, lifestyle);
+
+    // Example of using the meal_prep function
+    double carbs, protein, fat;
+    meal_prep(daily_calories, carbs, protein, fat);
 
     // Displaying the gathered information and results (for demonstration purposes)
     std::cout << "\nUser Details:\n";
@@ -153,6 +220,12 @@ int main() {
     std::cout << "Group: " << bfp_result.second << "\n";
 
     std::cout << "\nDaily Calorie Intake: " << daily_calories << " calories\n";
+
+    // Display macronutrient breakdown
+    std::cout << "\nMacronutrient Breakdown:\n";
+    std::cout << "Carbohydrates: " << carbs << " grams\n";
+    std::cout << "Protein: " << protein << " grams\n";
+    std::cout << "Fat: " << fat << " grams\n";
 
     return 0;
 }
