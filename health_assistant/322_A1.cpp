@@ -14,43 +14,41 @@ double waist;
 double neck;
 double height;
 std::string lifestyle;
-
-// Additional variable for female users
 double hip;
 
 void getUserDetails() {
     // Prompt user for input
-    std::cout << "1. Gender: Please specify your gender as either male or female: ";
+    std::cout << "Please specify your gender as either male or female: ";
     std::cin >> gender;
 
-    std::cout << "2. Age: Enter your age: ";
+    std::cout << "Enter your age: ";
     std::cin >> age;
 
-    std::cout << "3. Weight: Enter your body weight in kilograms: ";
+    std::cout << "Enter your body weight in kilograms: ";
     std::cin >> weight;
 
-    std::cout << "4. Waist: Input your waist measurement using centimeters: ";
+    std::cout << "Enter your waist measurement in centimeters: ";
     std::cin >> waist;
 
-    std::cout << "5. Neck: Provide your neck measurement in centimeters: ";
+    std::cout << "Enter your neck measurement in centimeters: ";
     std::cin >> neck;
 
-    std::cout << "6. Height: Input height measurement in centimeters: ";
+    std::cout << "Enter your height measurement in centimeters: ";
     std::cin >> height;
 
-    std::cout << "7. Lifestyle: Provide information about your current lifestyle (sedentary, moderate, or active): ";
+    std::cout << "Enter information about your current lifestyle (sedentary, moderate, or active): ";
     std::cin >> lifestyle;
 
     // Additional input for female users
     if (gender == "female") {
-        std::cout << "Hip Measurement: Enter your hip measurement in centimeters: ";
+        std::cout << "Enter your hip measurement in centimeters: ";
         std::cin >> hip;
     }
 }
 
 std::pair<int, std::string> get_bfp(double waist, double neck, double height, double hip, std::string gender, int age) {
+    // Calculate bodyfat % by gender
     double BF_percentage;
-
     if (gender == "male") {
         BF_percentage = 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450;
     } else if (gender == "female") {
@@ -61,7 +59,7 @@ std::pair<int, std::string> get_bfp(double waist, double neck, double height, do
         return {0, "Invalid"};
     }
 
-    // Determine the body fat percentage group
+    // Determine the body fat % category
     std::string group;
     if (gender == "female") {
         if (age >= 20 && age <= 39) {
@@ -127,7 +125,8 @@ std::pair<int, std::string> get_bfp(double waist, double neck, double height, do
                 group = "very high";
             }
         } else {
-            std::cerr << "Invalid age specified.\n";
+            // Handle invalid age
+            std::cerr << "Age out of range 20-79.\n";
             return {0, "Invalid"};
         }
     }
@@ -136,6 +135,7 @@ std::pair<int, std::string> get_bfp(double waist, double neck, double height, do
 }
 
 int get_daily_calories(double age, std::string gender, std::string lifestyle) {
+    // Determine the required calories from activity level
     int daily_calories = 0;
 
     if (gender == "male") {
@@ -191,8 +191,8 @@ int get_daily_calories(double age, std::string gender, std::string lifestyle) {
             }
         }
     } else {
-        // Handle invalid gender
-        std::cerr << "Invalid gender specified.\n";
+        // Handle invalid activity level
+        std::cerr << "Invalid activity level specified.\n";
     }
 
     return daily_calories;
@@ -215,14 +215,14 @@ void meal_prep(int calories_input, double& carbs_output, double& protein_output,
     fat_output = (calories_input * fat_percentage) / fat_calories;
 }
 
-
 void display() {
+    // Calculate body fat %, calorie requirement, and macronutrient breakdown
     auto bfp_result = get_bfp(waist, neck, height, hip, gender, age);
     int daily_calories = get_daily_calories(age, gender, lifestyle);
     double carbs, protein, fat;
     meal_prep(daily_calories, carbs, protein, fat);
 
-    // Displaying the gathered information and results
+    // Display the gathered information and results
     std::cout << "\nUser Details:\n";
     std::cout << "Gender: " << gender << "\n";
     std::cout << "Age: " << age << " years\n";
@@ -231,13 +231,11 @@ void display() {
     std::cout << "Neck: " << neck << " cm\n";
     std::cout << "Height: " << height << " cm\n";
     std::cout << "Lifestyle: " << lifestyle << "\n";
-
     if (gender == "female") {
         std::cout << "Hip Measurement: " << hip << " cm\n";
     }
 
     std::cout << "\nBody Fat Percentage: " << bfp_result.first << "%, " << bfp_result.second << "\n";
- 
     std::cout << "\nDaily Calorie Intake: " << daily_calories << " calories\n";
 
     // Display macronutrient breakdown
@@ -317,17 +315,15 @@ void readFromFile(std::string filename) {
 int main(int argc, char* argv[]) {
     // Check if a filename is provided as a command-line argument
     if (argc > 1) {
-        // Example of using the readFromFile function to load user data from a CSV file
+        // Read from the provided file
         readFromFile(argv[1]);
     }
 
-    // Example of using the getUserDetails function
+    // Collect user information
     getUserDetails();
-
-    // Call the display function to show the information in a user-friendly format
+    // Display to screen
     display();
-
-    // Example of using the serialize function to save user data to a CSV file
+    // Serialize user data to CSV
     serialize("user_data.csv");
 
     return 0;
