@@ -139,28 +139,53 @@ int get_daily_calories(double age, std::string gender, std::string lifestyle) {
         if (age >= 19 && age <= 30) {
             if (lifestyle == "sedentary") {
                 daily_calories = 2400;
-            } else if (lifestyle == "moderately active") {
-                daily_calories = 2600;
+            } else if (lifestyle == "moderate") {
+                daily_calories = 2700;
             } else if (lifestyle == "active") {
                 daily_calories = 3000;
             }
         } else if (age >= 31 && age <= 50) {
-            // Similar logic for other age groups
-            // ...
+            if (lifestyle == "sedentary") {
+                daily_calories = 2200;
+            } else if (lifestyle == "moderate") {
+                daily_calories = 2500;
+            } else if (lifestyle == "active") {
+                daily_calories = 2900;
+            }
         } else if (age >= 51) {
-            // Similar logic for other age groups
-            // ...
+            if (lifestyle == "sedentary") {
+                daily_calories = 2000;
+            } else if (lifestyle == "moderate") {
+                daily_calories = 2300;
+            } else if (lifestyle == "active") {
+                daily_calories = 2600;
+            }
         }
     } else if (gender == "female") {
         if (age >= 19 && age <= 30) {
-            // Similar logic for other age groups
-            // ...
+            if (lifestyle == "sedentary") {
+                daily_calories = 2000;
+            } else if (lifestyle == "moderate") {
+                daily_calories = 2100;
+            } else if (lifestyle == "active") {
+                daily_calories = 2400;
+            }
         } else if (age >= 31 && age <= 50) {
-            // Similar logic for other age groups
-            // ...
+            if (lifestyle == "sedentary") {
+                daily_calories = 1800;
+            } else if (lifestyle == "moderate") {
+                daily_calories = 2000;
+            } else if (lifestyle == "active") {
+                daily_calories = 2200;
+            }
         } else if (age >= 51) {
-            // Similar logic for other age groups
-            // ...
+            if (lifestyle == "sedentary") {
+                daily_calories = 1600;
+            } else if (lifestyle == "moderate") {
+                daily_calories = 1800;
+            } else if (lifestyle == "active") {
+                daily_calories = 2100;
+            }
         }
     } else {
         // Handle invalid gender
@@ -188,21 +213,13 @@ void meal_prep(int calories_input, double& carbs_output, double& protein_output,
 }
 
 
-int main() {
-    // Example of using the getUserDetails function
-    getUserDetails();
-
-    // Example of using the get_bfp function
+void display() {
     auto bfp_result = get_bfp(waist, neck, height, hip, gender, age);
-
-    // Example of using the get_daily_calories function
     int daily_calories = get_daily_calories(age, gender, lifestyle);
-
-    // Example of using the meal_prep function
     double carbs, protein, fat;
     meal_prep(daily_calories, carbs, protein, fat);
 
-    // Displaying the gathered information and results (for demonstration purposes)
+    // Displaying the gathered information and results
     std::cout << "\nUser Details:\n";
     std::cout << "Gender: " << gender << "\n";
     std::cout << "Age: " << age << " years\n";
@@ -216,9 +233,8 @@ int main() {
         std::cout << "Hip Measurement: " << hip << " cm\n";
     }
 
-    std::cout << "\nBody Fat Percentage: " << bfp_result.first << "%\n";
-    std::cout << "Group: " << bfp_result.second << "\n";
-
+    std::cout << "\nBody Fat Percentage: " << bfp_result.first << "%, " << bfp_result.second << "\n";
+ 
     std::cout << "\nDaily Calorie Intake: " << daily_calories << " calories\n";
 
     // Display macronutrient breakdown
@@ -226,6 +242,12 @@ int main() {
     std::cout << "Carbohydrates: " << carbs << " grams\n";
     std::cout << "Protein: " << protein << " grams\n";
     std::cout << "Fat: " << fat << " grams\n";
+}
 
+int main() {
+    // Example of using the getUserDetails function
+    getUserDetails();
+    display();
     return 0;
 }
+
