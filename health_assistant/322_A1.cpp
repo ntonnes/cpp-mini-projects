@@ -19,6 +19,7 @@ double height;
 std::string lifestyle;
 double hip;
 
+// Helper functions to validate user inputs
 void validateAge() {
     std::cout << "Enter your age: ";
 
@@ -49,7 +50,7 @@ void validateDouble(const std::string& strOut, const std::string& strErr, double
         double temp;
 
         // Validate all other measurements
-        if (temp > 0) {
+        if (ss >> temp && ss.eof() && !std::isspace(input.at(0)) && (temp>0)) {
             param = temp;
             return;
         }
@@ -78,37 +79,33 @@ void validateStr(const std::string& strOut, const std::string& strErr, const std
     }
 }
 
+//*** QUESTION 1 ***//
 void getUserDetails() {
 
+    // Prompt for and validate gender
     std::vector<std::string> validGenders = { "female", "male" };
     validateStr("Please specify your gender as either male or female: ", "Invalid gender. Please enter male or female: ", validGenders, gender);
 
-    // Prompt for and validate int-based inputs
+    // Prompt for and validate age
     validateAge();
 
+    // Prompt for and validate double-based measurements
     validateDouble("Enter your body weight in kilograms: ", "Invalid weight. Please enter a weight greater than 0: ", weight);
-
     validateDouble("Enter your waist measurement in centimeters: ", "Invalid waist measurement. Please enter a value greater than 0: ", waist);
-
     validateDouble("Enter your neck measurement in centimeters: ", "Invalid neck measurement. Please enter a value greater than 0: ", neck);
-
     validateDouble("Enter your height measurement in centimeters: ", "Invalid height measurement. Please enter a value greater than 0: ", height);
 
+    // Prompt for and validate lifestyle
     std::vector<std::string> validLifestyles = { "sedentary", "moderate", "active" };
     validateStr("Enter information about your current lifestyle (sedentary, moderate, or active): ", "Invalid lifestyle. Please enter sedentary, moderate, or active: ", validLifestyles, lifestyle);
 
-    // Additional input for female users
+    // Prompt for and validate hip measurement for female users
     if (gender == "female") {
-        std::cout << "Enter your hip measurement in centimeters: ";
-        // Validate hip input
-        while (!(std::cin >> hip) || hip <= 0) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid hip measurement. Please enter a value greater than 0: ";
-        }
+        validateDouble("Enter your hip measurement in centimeters: ", "Invalid hip measurement. Please enter a value greater than 0: ", hip);
     }
 }
 
+//*** QUESTION 2 ***//
 std::pair<int, std::string> get_bfp(double waist, double neck, double height, double hip, std::string gender, int age) {
     // Calculate bodyfat % by gender
     double BF_percentage;
@@ -198,64 +195,22 @@ std::pair<int, std::string> get_bfp(double waist, double neck, double height, do
 }
 
 int get_daily_calories(double age, std::string gender, std::string lifestyle) {
-    // Determine the required calories from activity level
-    int daily_calories = 0;
+    // Start with minimum calories
+    int daily_calories = 1600;
 
-    if (gender == "male") {
-        if (age >= 19 && age <= 30) {
-            if (lifestyle == "sedentary") {
-                daily_calories = 2400;
-            } else if (lifestyle == "moderate") {
-                daily_calories = 2700;
-            } else if (lifestyle == "active") {
-                daily_calories = 3000;
-            }
-        } else if (age >= 31 && age <= 50) {
-            if (lifestyle == "sedentary") {
-                daily_calories = 2200;
-            } else if (lifestyle == "moderate") {
-                daily_calories = 2500;
-            } else if (lifestyle == "active") {
-                daily_calories = 2900;
-            }
-        } else if (age >= 51) {
-            if (lifestyle == "sedentary") {
-                daily_calories = 2000;
-            } else if (lifestyle == "moderate") {
-                daily_calories = 2300;
-            } else if (lifestyle == "active") {
-                daily_calories = 2600;
-            }
-        }
-    } else if (gender == "female") {
-        if (age >= 19 && age <= 30) {
-            if (lifestyle == "sedentary") {
-                daily_calories = 2000;
-            } else if (lifestyle == "moderate") {
-                daily_calories = 2100;
-            } else if (lifestyle == "active") {
-                daily_calories = 2400;
-            }
-        } else if (age >= 31 && age <= 50) {
-            if (lifestyle == "sedentary") {
-                daily_calories = 1800;
-            } else if (lifestyle == "moderate") {
-                daily_calories = 2000;
-            } else if (lifestyle == "active") {
-                daily_calories = 2200;
-            }
-        } else if (age >= 51) {
-            if (lifestyle == "sedentary") {
-                daily_calories = 1600;
-            } else if (lifestyle == "moderate") {
-                daily_calories = 1800;
-            } else if (lifestyle == "active") {
-                daily_calories = 2100;
-            }
-        }
-    } else {
-        // Handle invalid activity level
-        std::cerr << "Invalid activity level specified.\n";
+    // Add additional calories based on age
+    if (age < 51) { 
+        daily_calories += (age > 30) ? 200 : 400;
+    }
+
+    // Add additional calories for males
+    daily_calories += (gender == "male") ? 400 : 0;
+
+    // Set scaling factor for activity level
+    int activityBonus = (gender == "male") ? 300 : 200;
+    // Add additional calories based on activity level
+    if (lifestyle != "sedentary") {
+        daily_calories += (lifestyle == "moderate") ? activityBonus : (2*activityBonus);
     }
 
     return daily_calories;
