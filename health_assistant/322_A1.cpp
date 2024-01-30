@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <limits>
 #include <string>
 #include <utility>
 #include <fstream>
@@ -16,33 +17,76 @@ double height;
 std::string lifestyle;
 double hip;
 
+
+
 void getUserDetails() {
     // Prompt user for input
     std::cout << "Please specify your gender as either male or female: ";
     std::cin >> gender;
 
+    // Validate gender input
+    while (!(gender == "male" || gender == "female")) {
+        std::cout << "Invalid gender. Please enter male or female: ";
+        std::cin >> gender;
+    }
+
     std::cout << "Enter your age: ";
-    std::cin >> age;
+    // Validate age input
+    while (!(std::cin >> age) || age < 20 || age > 79) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid age. Please enter an age between 20 and 79: ";
+    }
 
     std::cout << "Enter your body weight in kilograms: ";
-    std::cin >> weight;
+    // Validate weight input
+    while (!(std::cin >> weight) || weight <= 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid weight. Please enter a weight greater than 0: ";
+    }
 
     std::cout << "Enter your waist measurement in centimeters: ";
-    std::cin >> waist;
+    // Validate waist input
+    while (!(std::cin >> waist) || waist <= 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid waist measurement. Please enter a value greater than 0: ";
+    }
 
     std::cout << "Enter your neck measurement in centimeters: ";
-    std::cin >> neck;
+    // Validate neck input
+    while (!(std::cin >> neck) || neck <= 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid neck measurement. Please enter a value greater than 0: ";
+    }
 
     std::cout << "Enter your height measurement in centimeters: ";
-    std::cin >> height;
+    // Validate height input
+    while (!(std::cin >> height) || height <= 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid height measurement. Please enter a value greater than 0: ";
+    }
 
     std::cout << "Enter information about your current lifestyle (sedentary, moderate, or active): ";
-    std::cin >> lifestyle;
+    // Validate lifestyle input
+    while (!(std::cin >> lifestyle) || !(lifestyle == "sedentary" || lifestyle == "moderate" || lifestyle == "active")) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid lifestyle. Please enter sedentary, moderate, or active: ";
+    }
 
     // Additional input for female users
     if (gender == "female") {
         std::cout << "Enter your hip measurement in centimeters: ";
-        std::cin >> hip;
+        // Validate hip input
+        while (!(std::cin >> hip) || hip <= 0) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid hip measurement. Please enter a value greater than 0: ";
+        }
     }
 }
 
