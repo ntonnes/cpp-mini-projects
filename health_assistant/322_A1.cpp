@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <cctype>
 
 // Global variables to store user details
 std::string gender;
@@ -17,66 +19,83 @@ double height;
 std::string lifestyle;
 double hip;
 
-
-
-void getUserDetails() {
-    // Prompt user for input
-    std::cout << "Please specify your gender as either male or female: ";
-    std::cin >> gender;
-
-    // Validate gender input
-    while (!(gender == "male" || gender == "female")) {
-        std::cout << "Invalid gender. Please enter male or female: ";
-        std::cin >> gender;
-    }
-
+void validateAge() {
     std::cout << "Enter your age: ";
-    // Validate age input
-    while (!(std::cin >> age) || age < 20 || age > 79) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    while (true) {
+        std::string input;
+        std::getline(std::cin, input);
+        
+        // Use stringstream to check if the input is a valid integer
+        std::stringstream ss(input);
+        if (ss >> age && ss.eof() && !std::isspace(input.at(0)) && (age > 19 && age < 80)) {
+            return;
+        }
+        
+        // Input is invalid
         std::cout << "Invalid age. Please enter an age between 20 and 79: ";
     }
+}
 
-    std::cout << "Enter your body weight in kilograms: ";
-    // Validate weight input
-    while (!(std::cin >> weight) || weight <= 0) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Invalid weight. Please enter a weight greater than 0: ";
-    }
+void validateDouble(const std::string& strOut, const std::string& strErr, double& param) {
+    std::cout << strOut;
+    
+    while (true) {
+        std::string input;
+        std::getline(std::cin, input);
+        
+        // Use stringstream to check if the input is a valid integer
+        std::stringstream ss(input);
+        double temp;
 
-    std::cout << "Enter your waist measurement in centimeters: ";
-    // Validate waist input
-    while (!(std::cin >> waist) || waist <= 0) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Invalid waist measurement. Please enter a value greater than 0: ";
+        // Validate all other measurements
+        if (temp > 0) {
+            param = temp;
+            return;
+        }
+        
+        // Input is not a valid integer or is not greater than 0
+        std::cout << strErr;
     }
+}
 
-    std::cout << "Enter your neck measurement in centimeters: ";
-    // Validate neck input
-    while (!(std::cin >> neck) || neck <= 0) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Invalid neck measurement. Please enter a value greater than 0: ";
-    }
+void validateStr(const std::string& strOut, const std::string& strErr, const std::vector<std::string>& validStrs, std::string& param) {
+    std::cout << strOut;
 
-    std::cout << "Enter your height measurement in centimeters: ";
-    // Validate height input
-    while (!(std::cin >> height) || height <= 0) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Invalid height measurement. Please enter a value greater than 0: ";
-    }
+    while (true) {
+        std::getline(std::cin, param);
 
-    std::cout << "Enter information about your current lifestyle (sedentary, moderate, or active): ";
-    // Validate lifestyle input
-    while (!(std::cin >> lifestyle) || !(lifestyle == "sedentary" || lifestyle == "moderate" || lifestyle == "active")) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Invalid lifestyle. Please enter sedentary, moderate, or active: ";
+        // Convert the user input to lowercase for case-insensitive comparison
+        std::transform(param.begin(), param.end(), param.begin(), ::tolower);
+
+        // Check if the user input is in the list of valid strings
+        if (std::find(validStrs.begin(), validStrs.end(), param) != validStrs.end()) {
+            return;
+        }
+
+        // Invalid input
+        std::cout << strErr;
     }
+}
+
+void getUserDetails() {
+
+    std::vector<std::string> validGenders = { "female", "male" };
+    validateStr("Please specify your gender as either male or female: ", "Invalid gender. Please enter male or female: ", validGenders, gender);
+
+    // Prompt for and validate int-based inputs
+    validateAge();
+
+    validateDouble("Enter your body weight in kilograms: ", "Invalid weight. Please enter a weight greater than 0: ", weight);
+
+    validateDouble("Enter your waist measurement in centimeters: ", "Invalid waist measurement. Please enter a value greater than 0: ", waist);
+
+    validateDouble("Enter your neck measurement in centimeters: ", "Invalid neck measurement. Please enter a value greater than 0: ", neck);
+
+    validateDouble("Enter your height measurement in centimeters: ", "Invalid height measurement. Please enter a value greater than 0: ", height);
+
+    std::vector<std::string> validLifestyles = { "sedentary", "moderate", "active" };
+    validateStr("Enter information about your current lifestyle (sedentary, moderate, or active): ", "Invalid lifestyle. Please enter sedentary, moderate, or active: ", validLifestyles, lifestyle);
 
     // Additional input for female users
     if (gender == "female") {
