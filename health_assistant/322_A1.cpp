@@ -10,16 +10,16 @@
 #include <cctype>
 
 // Global variables to store user details
-std::string gender;
+std::string gender, lifestyle;
 int age;
-double weight;
-double waist;
-double neck;
-double height;
-std::string lifestyle;
-double hip;
+double weight, waist, neck, height, hip;
 
-// Helper functions to validate user inputs
+// Global variables to calculated values
+int intake;
+std::pair<int, std::string> bodyfat;
+double carbs, protein, fat;
+
+// Helper functions to validate user input
 void validateAge() {
     std::cout << "Enter your age: ";
 
@@ -37,7 +37,6 @@ void validateAge() {
         std::cout << "Invalid age. Please enter an age between 20 and 79: ";
     }
 }
-
 void validateDouble(const std::string& strOut, const std::string& strErr, double& param) {
     std::cout << strOut;
     
@@ -59,7 +58,6 @@ void validateDouble(const std::string& strOut, const std::string& strErr, double
         std::cout << strErr;
     }
 }
-
 void validateStr(const std::string& strOut, const std::string& strErr, const std::vector<std::string>& validStrs, std::string& param) {
     std::cout << strOut;
 
@@ -79,7 +77,7 @@ void validateStr(const std::string& strOut, const std::string& strErr, const std
     }
 }
 
-//*** QUESTION 1 ***//
+//*** PART 1 ***//
 void getUserDetails() {
 
     // Prompt for and validate gender
@@ -105,7 +103,7 @@ void getUserDetails() {
     }
 }
 
-//*** QUESTION 2 ***//
+//*** PART 2 ***//
 std::pair<int, std::string> get_bfp(double waist, double neck, double height, double hip, std::string gender, int age) {
     // Calculate bodyfat % by gender
     double BF_percentage;
@@ -194,6 +192,7 @@ std::pair<int, std::string> get_bfp(double waist, double neck, double height, do
     return {static_cast<int>(BF_percentage), group};
 }
 
+//*** PART 3 ***//
 int get_daily_calories(double age, std::string gender, std::string lifestyle) {
     // Start with minimum calories
     int daily_calories = 1600;
@@ -216,6 +215,7 @@ int get_daily_calories(double age, std::string gender, std::string lifestyle) {
     return daily_calories;
 }
 
+//*** PART 4 ***//
 void meal_prep(int calories_input, double& carbs_output, double& protein_output, double& fat_output) {
     // Constants for macronutrient calorie values
     const int carb_calories = 4;
@@ -233,36 +233,43 @@ void meal_prep(int calories_input, double& carbs_output, double& protein_output,
     fat_output = (calories_input * fat_percentage) / fat_calories;
 }
 
+//*** PART 5 ***//
 void display() {
-    // Calculate body fat %, calorie requirement, and macronutrient breakdown
-    auto bfp_result = get_bfp(waist, neck, height, hip, gender, age);
-    int daily_calories = get_daily_calories(age, gender, lifestyle);
-    double carbs, protein, fat;
-    meal_prep(daily_calories, carbs, protein, fat);
-
     // Display the gathered information and results
-    std::cout << "\nUser Details:\n";
-    std::cout << "Gender: " << gender << "\n";
-    std::cout << "Age: " << age << " years\n";
-    std::cout << "Weight: " << weight << " kg\n";
-    std::cout << "Waist: " << waist << " cm\n";
-    std::cout << "Neck: " << neck << " cm\n";
-    std::cout << "Height: " << height << " cm\n";
-    std::cout << "Lifestyle: " << lifestyle << "\n";
+    std::cout << "\n\033[1;33m=========================================\033[0m\n";
+    std::cout << "\033[1;33m              User Details\033[0m\n";
+    std::cout << "\033[1;33m=========================================\033[0m\n";
+    std::cout << "\033[1;36m  Gender:\033[0m             " << gender << "\n";
+    std::cout << "\033[1;36m  Age:\033[0m                " << age << " years\n";
+    std::cout << "\033[1;36m  Weight:\033[0m             " << weight << " kg\n";
+    std::cout << "\033[1;36m  Waist:\033[0m              " << waist << " cm\n";
+    std::cout << "\033[1;36m  Neck:\033[0m               " << neck << " cm\n";
+    std::cout << "\033[1;36m  Height:\033[0m             " << height << " cm\n";
+    std::cout << "\033[1;36m  Lifestyle:\033[0m          " << lifestyle << "\n";
     if (gender == "female") {
-        std::cout << "Hip Measurement: " << hip << " cm\n";
+        std::cout << "\033[1;36m  Hip Measurement:\033[0m    " << hip << " cm\n";
     }
+    std::cout << "\033[1;33m=========================================\033[0m\n";
 
-    std::cout << "\nBody Fat Percentage: " << bfp_result.first << "%, " << bfp_result.second << "\n";
-    std::cout << "\nDaily Calorie Intake: " << daily_calories << " calories\n";
+    std::cout << "\n\033[1;33m=========================================\033[0m\n";
+    std::cout << "\033[1;33m      Body Fat & Calorie Information\033[0m\n";
+    std::cout << "\033[1;33m=========================================\033[0m\n";
+    std::cout << "\033[1;36m  Body Fat Percentage:\033[0m " << bodyfat.first << "%, " << bodyfat.second << "\n";
+    std::cout << "\033[1;36m  Daily Calorie Intake:\033[0m " << intake << " calories\n";
+    std::cout << "\033[1;33m=========================================\033[0m\n";
 
     // Display macronutrient breakdown
-    std::cout << "\nMacronutrient Breakdown:\n";
-    std::cout << "Carbohydrates: " << carbs << " grams\n";
-    std::cout << "Protein: " << protein << " grams\n";
-    std::cout << "Fat: " << fat << " grams\n";
+    std::cout << "\n\033[1;33m=========================================\033[0m\n";
+    std::cout << "\033[1;33m         Macronutrient Breakdown\033[0m\n";
+    std::cout << "\033[1;33m=========================================\033[0m\n";
+    std::cout << "\033[1;36m  Carbohydrates:\033[0m       " << carbs << " grams\n";
+    std::cout << "\033[1;36m  Protein:\033[0m             " << protein << " grams\n";
+    std::cout << "\033[1;36m  Fat:\033[0m                 " << fat << " grams\n";
+    std::cout << "\033[1;33m=========================================\033[0m\n";
 }
 
+
+//*** PART 6 ***//
 void serialize(std::string filename) {
     // Open the file in append mode to preserve existing data
     std::ofstream file(filename, std::ios::app);
@@ -288,6 +295,7 @@ void serialize(std::string filename) {
     file.close();
 }
 
+//*** PART 7 ***//
 void readFromFile(std::string filename) {
     // Open the file for reading
     std::ifstream file(filename);
@@ -330,6 +338,7 @@ void readFromFile(std::string filename) {
     file.close();
 }
 
+//*** MAIN ***///
 int main(int argc, char* argv[]) {
     // Check if a filename is provided as a command-line argument
     if (argc > 1) {
@@ -339,8 +348,15 @@ int main(int argc, char* argv[]) {
 
     // Collect user information
     getUserDetails();
+    
+    // Calculate body fat %, calorie requirement, and macronutrient breakdown
+    bodyfat = get_bfp(waist, neck, height, hip, gender, age);
+    intake = get_daily_calories(age, gender, lifestyle);
+    meal_prep(intake, carbs, protein, fat);
+
     // Display to screen
     display();
+
     // Serialize user data to CSV
     serialize("user_data.csv");
 
