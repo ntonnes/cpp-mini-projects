@@ -20,7 +20,6 @@ int intake;
 std::pair<int, std::string> bodyfat;
 double carbs, protein, fat;
 
-
 // Helper functions to validate user input
 void getValidatedAge(int& age) {
     std::cout << "Enter your age: ";
@@ -83,7 +82,6 @@ void getValidatedStringInput(const std::string& prompt, const std::string& error
     }
 }
 
-
 //*** PART 1 ***//
 void promptUserDetails() {
     // Valid inputs
@@ -110,7 +108,6 @@ void promptUserDetails() {
         getValidatedPositiveDouble("Enter your hip measurement in centimeters: ", "Invalid hip measurement. Please enter a value greater than 0: ", hip);
     }
 }
-
 
 //*** PART 2 ***//
 std::pair<int, std::string> calculateBodyFatPercentageAndCategory(double waist, double neck, double height, double hip, const std::string& gender, int age) {
@@ -152,7 +149,6 @@ std::pair<int, std::string> calculateBodyFatPercentageAndCategory(double waist, 
     return {static_cast<int>(bodyFatPercentage), category};
 }
 
-
 //*** PART 3 ***//
 int calculateDailyCalories(double age, const std::string& gender, const std::string& lifestyle) {
     // Base calories
@@ -175,7 +171,6 @@ int calculateDailyCalories(double age, const std::string& gender, const std::str
     return dailyCalories;
 }
 
-
 //*** PART 4 ***//
 void meal_prep(int calories_input, double& carbs_output, double& protein_output, double& fat_output) {
     // Constants for macronutrient calorie values
@@ -193,7 +188,6 @@ void meal_prep(int calories_input, double& carbs_output, double& protein_output,
     protein_output = (calories_input * protein_percentage) / protein_calories;
     fat_output = (calories_input * fat_percentage) / fat_calories;
 }
-
 
 //*** PART 5 ***//
 void display() {
@@ -234,7 +228,6 @@ void display() {
     printDetail("Fat", std::to_string(fat) + " grams\n");
 }
 
-
 //*** PART 6 ***//
 void serialize(const std::string& filename) {
     // Open the file in append mode to preserve existing data
@@ -256,7 +249,6 @@ void serialize(const std::string& filename) {
     // Close the file
     file.close();
 }
-
 
 //*** PART 7 ***//
 void readFromFile(const std::string& filename) {
@@ -300,7 +292,6 @@ void readFromFile(const std::string& filename) {
     // Close the file
     file.close();
 }
-
 
 //*** MAIN ***///
 int main(int argc, char* argv[]) {
