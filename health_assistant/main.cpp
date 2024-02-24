@@ -20,29 +20,30 @@ int intake;
 std::pair<int, std::string> bodyfat;
 double carbs, protein, fat;
 
+
 // Helper functions to validate user input
-void getValidatedAge(int& age) {
+void getValidatedAge(int age) {
     std::cout << "Enter your age: ";
 
     while (true) {
         std::string input;
         std::getline(std::cin, input);
         
-        // Use stringstream to check if the input is a valid integer
+        // Use stringstream to check if the input is a valid integer 
         std::stringstream ss(input);
         int tempAge;
 
-        // Validate age
+        // Validate age input (between 20 and 79)
         if (ss >> tempAge && ss.eof() && !std::isspace(input.at(0)) && (tempAge > 19 && tempAge < 80)) {
             age = tempAge;
             return;
         }
         
-        // Input is invalid
+        // Input is invalid or out of range 
         std::cout << "Invalid age. Please enter an age between 20 and 79: ";
     }
 }
-void getValidatedPositiveDouble(const std::string& prompt, const std::string& errorMessage, double& value) {
+void getValidatedPositiveDouble(const std::string prompt, const std::string errorMessage, double value) {
     std::cout << prompt;
     
     while (true) {
@@ -53,7 +54,7 @@ void getValidatedPositiveDouble(const std::string& prompt, const std::string& er
         std::stringstream ss(input);
         double temp;
 
-        // Validate all other measurements
+        // Validate double input (double greater than 0)
         if (ss >> temp && ss.eof() && !std::isspace(input.at(0)) && (temp > 0)) {
             value = temp;
             return;
@@ -63,7 +64,7 @@ void getValidatedPositiveDouble(const std::string& prompt, const std::string& er
         std::cout << errorMessage;
     }
 }
-void getValidatedStringInput(const std::string& prompt, const std::string& errorMessage, const std::vector<std::string>& validInputs, std::string& userInput) {
+void getValidatedStringInput(const std::string prompt, const std::string errorMessage, const std::vector<std::string> validInputs, std::string userInput) {
     std::cout << prompt;
 
     while (true) {
@@ -77,53 +78,51 @@ void getValidatedStringInput(const std::string& prompt, const std::string& error
             return;
         }
 
-        // Invalid input
+        // Invalid input provided 
         std::cout << errorMessage;
     }
 }
 
+
 //*** PART 1 ***//
-void promptUserDetails() {
-    // Valid inputs
+void getUserDetails() {
+    // Valid string inputs
     std::vector<std::string> validGenders = { "female", "male" };
     std::vector<std::string> validLifestyles = { "sedentary", "moderate", "active" };
 
-    // Prompt for and validate gender
+    // Prompt for and validate gender input 
     getValidatedStringInput("Please specify your gender as either male or female: ", "Invalid gender. Please enter male or female: ", validGenders, gender);
 
-    // Prompt for and validate age
+    // Prompt for and validate age input
     getValidatedAge(age);
 
-    // Prompt for and validate double-based measurements
+    // Prompt for and validate double-based measurement inputs
     getValidatedPositiveDouble("Enter your body weight in kilograms: ", "Invalid weight. Please enter a weight greater than 0: ", weight);
     getValidatedPositiveDouble("Enter your waist measurement in centimeters: ", "Invalid waist measurement. Please enter a value greater than 0: ", waist);
     getValidatedPositiveDouble("Enter your neck measurement in centimeters: ", "Invalid neck measurement. Please enter a value greater than 0: ", neck);
     getValidatedPositiveDouble("Enter your height measurement in centimeters: ", "Invalid height measurement. Please enter a value greater than 0: ", height);
 
-    // Prompt for and validate lifestyle
+    // Prompt for and validate lifestyle input
     getValidatedStringInput("Enter information about your current lifestyle (sedentary, moderate, or active): ", "Invalid lifestyle. Please enter sedentary, moderate, or active: ", validLifestyles, lifestyle);
 
-    // Prompt for and validate hip measurement for female users
+    // Prompt for and validate hip measurement input for female users
     if (gender == "female") {
         getValidatedPositiveDouble("Enter your hip measurement in centimeters: ", "Invalid hip measurement. Please enter a value greater than 0: ", hip);
     }
 }
 
+
 //*** PART 2 ***//
-std::pair<int, std::string> calculateBodyFatPercentageAndCategory(double waist, double neck, double height, double hip, const std::string& gender, int age) {
-    // Calculate bodyfat % by gender
+std::pair<int, std::string> get_bfp(double waist, double neck, double height, double hip, std::string gender, int age) {
+    // Calculate bodyfat % by gender using the US Navy formula
     double bodyFatPercentage;
-    if (gender == "male") {
+    if (gender == "male") { 
         bodyFatPercentage = 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450;
     } else if (gender == "female") {
         bodyFatPercentage = 495 / (1.29579 - 0.35004 * log10(waist + hip - neck) + 0.22100 * log10(height)) - 450;
-    } else {
-        // Handle invalid gender
-        std::cerr << "Invalid gender specified.\n";
-        return {0, "Invalid"};
     }
 
-    // Determine the body fat % category
+    // Set the thresholds for body fat % based on gender and age
     std::string category;
     std::vector<std::pair<double, std::string>> thresholds;
     if (gender == "female") {
@@ -136,43 +135,50 @@ std::pair<int, std::string> calculateBodyFatPercentageAndCategory(double waist, 
                                            : std::vector<std::pair<double, std::string>>{{8, "low"}, {20, "normal"}, {25, "high"}};
     }
 
+    // Loop through the thresholds to determine the body fat % category
     for (const auto& threshold : thresholds) {
         if (bodyFatPercentage < threshold.first) {
             category = threshold.second;
             break;
         }
     }
+
+    // If no category is determined, set it as "very high"
     if (category.empty()) {
         category = "very high";
     }
 
+    // Return the body fat percentage and its category
     return {static_cast<int>(bodyFatPercentage), category};
 }
 
+
 //*** PART 3 ***//
-int calculateDailyCalories(double age, const std::string& gender, const std::string& lifestyle) {
-    // Base calories
+int get_daily_calories(double age, std::string gender, std::string lifestyle) {
+    // Base calories for all users
     int dailyCalories = 1600;
 
-    // Additional calories based on age
+    // Additional calories based on age group
     dailyCalories += (age < 51) ? ((age > 30) ? 200 : 400) : 0;
 
-    // Additional calories for males
+    // Additional calories for male users
     dailyCalories += (gender == "male") ? 400 : 0;
 
-    // Scaling factor for activity level
+    // Scaling factor for activity level bonus based on gender 
     int activityBonus = (gender == "male") ? 300 : 200;
 
-    // Additional calories based on activity level
+    // Add calories based on the activity level and scaling factor
     if (lifestyle != "sedentary") {
         dailyCalories += (lifestyle == "moderate") ? activityBonus : (2 * activityBonus);
     }
-
+    
+    // Return the calculated daily calorie intake
     return dailyCalories;
 }
 
+
 //*** PART 4 ***//
-void meal_prep(int calories_input, double& carbs_output, double& protein_output, double& fat_output) {
+void meal_prep(int calories_input, double carbs_output, double protein_output, double fat_output) {
     // Constants for macronutrient calorie values
     const int carb_calories = 4;
     const int protein_calories = 4;
@@ -189,23 +195,28 @@ void meal_prep(int calories_input, double& carbs_output, double& protein_output,
     fat_output = (calories_input * fat_percentage) / fat_calories;
 }
 
+
 //*** PART 5 ***//
 void display() {
+    // Constants for text formatting
     const std::string yellowBold = "\033[1;33m";
     const std::string cyanBold = "\033[1;36m";
     const std::string reset = "\033[0m";
     const std::string separator = "=========================================";
 
+    // Function to print section headers and details
     auto printSectionHeader = [&](const std::string& title) {
         std::cout << "\n" << yellowBold << separator << reset << "\n";
         std::cout << yellowBold << std::setw((separator.length() + title.length()) / 2) << std::right << title << reset << "\n";
         std::cout << yellowBold << separator << reset << "\n";
     };
 
+    // Function to print details with formatting
     auto printDetail = [&](const std::string& detail, auto value) {
         std::cout << cyanBold << std::setw(20) << std::left << detail << reset << ": " << value << "\n";
     };
 
+    // Print user details, body fat %, calorie intake, and macronutrient breakdown
     printSectionHeader("User Details");
     printDetail("Gender", gender);
     printDetail("Age", std::to_string(age) + " years");
@@ -218,22 +229,28 @@ void display() {
         printDetail("Hip Measurement", std::to_string(hip) + " cm");
     }
 
+    // Print body fat %, calorie intake, and macronutrient breakdown
     printSectionHeader("Body Fat & Calorie Information");
     printDetail("Body Fat Percentage", std::to_string(bodyfat.first) + "%, " + bodyfat.second);
     printDetail("Daily Calorie Intake", std::to_string(intake) + " calories");
 
+    // Print macronutrient breakdown
     printSectionHeader("Macronutrient Breakdown");
     printDetail("Carbohydrates", std::to_string(carbs) + " grams");
     printDetail("Protein", std::to_string(protein) + " grams");
     printDetail("Fat", std::to_string(fat) + " grams\n");
 }
 
+
 //*** PART 6 ***//
-void serialize(const std::string& filename) {
+void serialize(std::string filename) {
     // Open the file in append mode to preserve existing data
     std::ofstream file(filename, std::ios::app);
 
+    // Check if the file is open
     if (!file.is_open()) {
+
+        // Display an error message if the file cannot be opened
         std::cerr << "Error opening file for serialization.\n";
         return;
     }
@@ -251,11 +268,14 @@ void serialize(const std::string& filename) {
 }
 
 //*** PART 7 ***//
-void readFromFile(const std::string& filename) {
+void readFromFile(const std::string filename) {
     // Open the file for reading
     std::ifstream file(filename);
 
+    // Check if the file is open
     if (!file.is_open()) {
+
+        // Display an error message if the file cannot be opened
         std::cerr << "Error opening file for reading.\n";
         return;
     }
@@ -304,11 +324,11 @@ int main(int argc, char* argv[]) {
     readFromFile(filename);
 
     // Collect user information
-    promptUserDetails();
+    getUserDetails();
     
     // Calculate body fat %, calorie requirement, and macronutrient breakdown
-    bodyfat = calculateBodyFatPercentageAndCategory(waist, neck, height, hip, gender, age);
-    intake = calculateDailyCalories(age, gender, lifestyle);
+    bodyfat = get_bfp(waist, neck, height, hip, gender, age);
+    intake = get_daily_calories(age, gender, lifestyle);
     meal_prep(intake, carbs, protein, fat);
 
     // Display to screen
