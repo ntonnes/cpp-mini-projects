@@ -153,6 +153,14 @@ class UserInfoManager
 
         // Reads and populates the linked list from a CSV file
         void readFromFile(std::string filename) {
+            // Clear the existing linked list
+            UserInfo* current = mylist;
+            while (current != nullptr) {
+                UserInfo* next = current->next;
+                delete current;
+                current = next;
+            }
+            mylist = nullptr;
 
             // If the file is not a .csv file, print an error and return
             if (filename.size() < 4 || filename.substr(filename.size() - 4) != ".csv") {
@@ -279,6 +287,11 @@ class UserInfoManager
             std::cout << "\033[1;33m|\033[0m" << "\033[1;35m  Protein:\033[0m              " << user->protein << " grams\n";
             std::cout << "\033[1;33m|\033[0m" << "\033[1;35m  Fat:\033[0m                  " << user->fat << " grams\n";
             std::cout << "\033[1;33m=========================================\033[0m\n\n";
+        }
+
+        // Get the head of the linked list
+        UserInfo* getHead() {
+            return mylist;
         }
 
     private:
@@ -510,6 +523,20 @@ class HealthAssistant {
             user->fat = (user->calories * fat_percent) / fat_calories;
         }
 
+        // Method to calculate body fat percentage, daily calorie intake, and macronutrient breakdown for all users in the linked list
+        void massLoadAndCompute(std::string filename){
+            // Read user information from file
+            mymanager.readFromFile(filename);
+            // Iterate through the linked list and calculate body fat percentage, daily calorie intake, and macronutrient breakdown for each user
+            UserInfo* current = mymanager.getHead();
+            while (current != nullptr) {
+                getBfp(current->name);
+                getDailyCalories(current->name);
+                getMealPrep(current->name);
+                current = current->next;
+            }
+        }
+
 
         // Wrapper method to display user information
         void display(std::string username){ mymanager.display(username); }; 
@@ -525,10 +552,12 @@ class HealthAssistant {
 
     private:
         // Instance of UserInfoManager
-        UserInfoManager mymanager;
+        static UserInfoManager mymanager;
 
 };
 
+// Initialize static HealthAssistant
+UserInfoManager HealthAssistant::mymanager = UserInfoManager();
 
 // Main function
 int main() {
@@ -558,11 +587,11 @@ int main() {
     HealthAssistant ha2;
 
     // Read user information from user_data.csv 
-    // Should contain john with all info and jack with partial info
-    ha2.readFromFile("user_data.csv");
+    // Should contain john with all info and jack with all info
+    ha2.massLoadAndCompute("user_data.csv");
 
     // Display information for all the users
-    // Should display for both john and jack, with john having all info and jack having partial info
+    // Should display for both john and jack, both with all info
     ha2.display("all");
 
     // Delete user jack (assuming 2nd user is jack)
@@ -573,6 +602,6 @@ int main() {
     ha2.display("all"); 
 
     // Use the first object to display all user info
-    // Both john and jack should be present
+    // Should only display for john at this point
     ha.display("all"); 
 }

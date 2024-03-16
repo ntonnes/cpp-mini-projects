@@ -1,3 +1,3 @@
+/**/*.exe
+/**/*.csv
 .vscode/
-health_assistant/main.exe
-health_assistant/user_data.csv
