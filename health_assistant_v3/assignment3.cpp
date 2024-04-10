@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+#include <iomanip>
 
 
 class UserInfoManager
@@ -235,15 +236,14 @@ class UserInfoManager
          * Returns a vector of strings containing all usernames
          * Public member since other classes need to iterate through all users
          **/
-
-
         std::vector<std::string> getBfpUsers(std::vector<std::string> bfpGroups, std::string gender="") {
             std::vector<std::string> bfpUsers;
-            if (gender!="male"||gender!="female"||gender!="") {
+
+            if (gender!="male"&&gender!="female"&&gender!="") {
                 throw std::invalid_argument("Gender must be either 'male' or 'female', or left blank.");
             }
             for (const UserInfo &user : mylist) {
-                if (user.bfp.second == "none") {
+                if (user.bfp.second == "none" && bfpGroups.size()<8) {
                     throw std::runtime_error("Body fat percentage has not been calculated for all users.");
                 } else if (std::find(bfpGroups.begin(), bfpGroups.end(), user.bfp.second) != bfpGroups.end() && (user.gender == gender || gender == "")) {
                     bfpUsers.push_back(user.name);
@@ -253,15 +253,15 @@ class UserInfoManager
         }
 
         std::vector<std::string> healthyUsers(std::string gender="") {
-            return getBfpUsers({"normal"}, gender);
+            return getBfpUsers({"normal", "healthy weight"}, gender);
         }
 
         std::vector<std::string> unhealthyUsers(std::string gender="") {
-            return getBfpUsers({"high", "very high"}, gender);
+            return getBfpUsers({"high", "very high", "overweight", "obesity", "low", "underweight"}, gender);
         }
 
         std::vector<std::string> allUsers(std::string gender="") {
-            return getBfpUsers({"low", "normal", "high", "very high"}, gender);
+            return getBfpUsers({"low", "normal", "high", "very high", "none", "underweight", "overweight", "healthy weight", "obesity"}, gender);
         }
 
         /** Getter methods to access user information
@@ -308,6 +308,8 @@ class UserInfoManager
                 throw std::runtime_error("Could not open file " + filename);
             }
 
+            mylist.clear();
+
             // Skip the header line
             std::string line;
             std::getline(file, line);
@@ -326,9 +328,9 @@ class UserInfoManager
                 std::getline(iss, field, ','); newUser.neck = std::stod(field);
                 std::getline(iss, field, ','); newUser.height = std::stod(field);
                 std::getline(iss, field, ','); newUser.hip = std::stod(field);
-                std::getline(iss, field, ','); newUser.bfp.first = std::stoi(field);
+                std::getline(iss, field, ','); newUser.bfp.first = std::stod(field);
                 std::getline(iss, field, ','); newUser.bfp.second = field;
-                std::getline(iss, field, ','); newUser.calories = std::stoi(field);
+                std::getline(iss, field, ','); newUser.calories = std::stod(field);
                 std::getline(iss, field, ','); newUser.carbs = std::stod(field);
                 std::getline(iss, field, ','); newUser.protein = std::stod(field);
                 std::getline(iss, field, ','); newUser.fat = std::stod(field);
@@ -337,7 +339,7 @@ class UserInfoManager
                 mylist.push_back(newUser);
             }
             // Print success message
-            std::cout << "\nData has been read from file " << filename << std::endl;
+            std::cout << "Data has been read from file " << filename << "\n";
         }
 
         /** Overwrites the .csv file provided with the user information in the 'mylist' vector
@@ -391,7 +393,9 @@ class UserInfoManager
          **/
         void displayDetails(const UserInfo& user) {
             int lineLength = 42;
-
+            std::cout << "\033[1;33m|            User: " << user.name << "\033[0m\n";
+            /**
+             * 
             // Display the gathered information and results
             std::cout << "\n\033[1;33m=========================================\033[0m\n";
             std::cout << "\033[1;33m|            User: " << user.name << "\033[0m\n";
@@ -415,6 +419,7 @@ class UserInfoManager
             std::cout << "\033[1;33m|\033[0m" << "\033[1;35m  Protein:\033[0m              " << user.protein << " grams\n";
             std::cout << "\033[1;33m|\033[0m" << "\033[1;35m  Fat:\033[0m                  " << user.fat << " grams\n";
             std::cout << "\033[1;33m=========================================\033[0m\n";
+            **/
         }
 };
 
@@ -428,31 +433,6 @@ class HealthAssistant {
          * Protected since derived classes also use the same UserInfo list
          **/
         static UserInfoManager mymanager;
-
-        /** Method to get the body fat percentage group based on the user's age and gender
-         *  Returns a string representing the group the user falls into
-         *  Protected member since derived classes use the same method to find the group
-         *  Does not need to be accessed from outside the class
-         **/
-        std::string getBfpGroup(double bfp, int age, std::string gender) {
-            std::vector<std::pair<int, std::string>> ranges;
-            // Set the thresholds for bfp group based on age
-            if (gender == "female") {
-                if (age >= 20 && age <= 39) ranges = {{21, "low"}, {33, "normal"}, {39, "high"}};
-                else if (age >= 40 && age <= 59) ranges = {{23, "low"}, {34, "normal"}, {40, "high"}};
-                else if (age >= 60 && age <= 79) ranges = {{24, "low"}, {36, "normal"}, {42, "high"}};
-            } else if (gender == "male") {
-                if (age >= 20 && age <= 39) ranges = {{8, "low"}, {20, "normal"}, {25, "high"}};
-                else if (age >= 40 && age <= 59) ranges = {{11, "low"}, {22, "normal"}, {28, "high"}};
-                else if (age >= 60) ranges = {{13, "low"}, {25, "normal"}, {30, "high"}};
-            }
-
-            // Return the group based on the bfp and the thresholds
-            for (auto& range : ranges) {
-                if (bfp < range.first) return range.second;
-            }
-            return "very high";
-        }
 
     public:
 
@@ -497,7 +477,6 @@ class HealthAssistant {
 
             // Update the UserInfo object with the calculated calorie intake
             mymanager.setCalories(username, calories);
-            std::cout << "\nRecommended daily calorie intake for " << username << " is " << calories << " calories." << std::endl;
         }
 
         /** Calculates and updates the macronutrient breakdown for a user based on their daily calorie intake
@@ -524,7 +503,6 @@ class HealthAssistant {
             mymanager.setProtein(username, (calories * protein_percent) / protein_calories);
             mymanager.setFat(username, (calories * fat_percent) / fat_calories);
 
-            std::cout << "\nMacrnutrient breakdown in calories for " << username << " has been calculated successfully." << std::endl;
         }
 
         /** Overwrites the static UserInfo vector 'mylist' with user information from a .csv file, then updates all users' calculated information
@@ -554,6 +532,30 @@ class HealthAssistant {
 };
 
 class USNavyMethod : public HealthAssistant {
+    private:
+
+        /** Method to get the body fat percentage group based on the user's age and gender
+         *  Returns a string representing the group the user falls into
+         **/
+        std::string getBfpGroup(double bfp, int age, std::string gender) {
+            std::vector<std::pair<int, std::string>> ranges;
+            // Set the thresholds for bfp group based on age
+            if (gender == "female") {
+                if (age >= 20 && age <= 39) ranges = {{21, "low"}, {33, "normal"}, {39, "high"}};
+                else if (age >= 40 && age <= 59) ranges = {{23, "low"}, {34, "normal"}, {40, "high"}};
+                else if (age >= 60 && age <= 79) ranges = {{24, "low"}, {36, "normal"}, {42, "high"}};
+            } else if (gender == "male") {
+                if (age >= 20 && age <= 39) ranges = {{8, "low"}, {20, "normal"}, {25, "high"}};
+                else if (age >= 40 && age <= 59) ranges = {{11, "low"}, {22, "normal"}, {28, "high"}};
+                else if (age >= 60) ranges = {{13, "low"}, {25, "normal"}, {30, "high"}};
+            }
+
+            // Return the group based on the bfp and the thresholds
+            for (auto& range : ranges) {
+                if (bfp < range.first) return range.second;
+            }
+            return "very high";
+        }
 
     public:
 
@@ -577,11 +579,23 @@ class USNavyMethod : public HealthAssistant {
 
             std::string group = getBfpGroup(bfp, age, gender);
             mymanager.setBfp(username, {bfp, group});
-            std::cout << "\nBody fat percentage for " << username << " is " << bfp << "%, which is " << group << "." << std::endl;
+            std::cout << "Body fat percentage for " << username << " is " << bfp << "%, which is " << group << ".\n";
         }
 };
 
 class BmiMethod : public HealthAssistant {
+    private:
+    
+        /** Method to get the body fat percentage group based on the user's bfp
+         *  Returns a string representing the group the user falls into
+         **/
+        std::string getBfpGroup(double bfp) {
+            if (bfp < 18.5){ return "underweight"; }
+            else if (bfp < 24.9){ return "healthy weight"; }
+            else if (bfp < 29.9){ return "overweight"; }
+            else { return "obesity"; }
+        }
+
     
     public:
 
@@ -596,9 +610,10 @@ class BmiMethod : public HealthAssistant {
             double height = mymanager.getHeight(username);
 
             // Calculate body fat percentage using the BMI method
-            double bfp = (weight / ((height * height) / 100));
-            std::string group = getBfpGroup(bfp, mymanager.getAge(username), mymanager.getGender(username));
+            double bfp = (weight / ((height/100) * (height/100)));
+            std::string group = getBfpGroup(bfp);
             mymanager.setBfp(username, {bfp, group});
+            std::cout << "Body fat percentage for " << username << " is " << bfp << "%, which is " << group << ".\n";
         }
 };
 
@@ -610,9 +625,17 @@ class UserStats {
             int totalUsers;
             int totalMale;
             int totalFemale;
+
+            int totalUsNavy;
+            int totalUsNavyMale;
+            int totalUsNavyFemale;
             int healthyUsNavy;
             int healthyUsNavyMale;
             int healthyUsNavyFemale;
+
+            int totalBmi;
+            int totalBmiMale;
+            int totalBmiFemale;
             int healthyBmi;
             int healthyBmiMale;
             int healthyBmiFemale;
@@ -674,12 +697,20 @@ class UserStats {
             // Get the users who are of the specified gender and have a "normal" body fat percentage
             healthyUsers = ha->healthyUsers(gender);
             delete ha;
+            std::cout << "Healthy users who are " << gender << " according to method " << method <<": ";
+            for (size_t i = 0; i < healthyUsers.size(); ++i) {
+                std::cout << healthyUsers[i];
+                if (i != healthyUsers.size() - 1) {
+                    std::cout << ", ";
+                }
+            }
+            std::cout << std::endl;
             return healthyUsers;
         }
 
         std::vector<std::string> GetUnfitUsers(std::string method, std::string gender = "") {
             // Vector to store usernames of healthy users
-            std::vector<std::string> healthyUsers;
+            std::vector<std::string> UnfitUsers;
 
             // Create a HealthAssistant object based on the method
             HealthAssistant* ha;
@@ -694,30 +725,38 @@ class UserStats {
 
             } else if (method == "all") {
                 // Get healthy users from both methods
-                std::vector<std::string> healthyUsersNavy = GetHealthyUsers("USNavy", gender);
-                std::vector<std::string> healthyUsersBmi = GetHealthyUsers("bmi", gender);
+                std::vector<std::string> UnfitUsersNavy = GetUnfitUsers("USNavy", gender);
+                std::vector<std::string> UnfitUsersBmi = GetUnfitUsers("bmi", gender);
 
                 // Sort the vectors by username
-                std::sort(healthyUsersNavy.begin(), healthyUsersNavy.end());
-                std::sort(healthyUsersBmi.begin(), healthyUsersBmi.end());
+                std::sort(UnfitUsersNavy.begin(), UnfitUsersNavy.end());
+                std::sort(UnfitUsersBmi.begin(), UnfitUsersBmi.end());
 
                 // Use std::set_intersection to find common elements
-                std::set_intersection(healthyUsersNavy.begin(), healthyUsersNavy.end(),
-                                      healthyUsersBmi.begin(), healthyUsersBmi.end(),
-                                      std::back_inserter(healthyUsers));
+                std::set_intersection(UnfitUsersNavy.begin(), UnfitUsersNavy.end(),
+                                      UnfitUsersBmi.begin(), UnfitUsersBmi.end(),
+                                      std::back_inserter(UnfitUsers));
 
                 // Return the vector of common elements
-                return healthyUsers;
+                return UnfitUsers;
 
             } else {
                 // Handle invalid method
                 throw std::invalid_argument("Invalid bfp method. Must be either 'USNavy', 'bmi', or 'all'.");
             }
 
-            // Get the users who are of the specified gender and have a "normal" body fat percentage
-            healthyUsers = ha->unhealthyUsers(gender);
+            // Get the users who are of the specified gender and have a "high" or "very high" body fat percentage
+            UnfitUsers = ha->unhealthyUsers(gender);
             delete ha;
-            return healthyUsers;
+            std::cout << "Unfit users who are " << gender << " according to method " << method <<": ";
+            for (size_t i = 0; i < UnfitUsers.size(); ++i) {
+                std::cout << UnfitUsers[i];
+                if (i != UnfitUsers.size() - 1) {
+                    std::cout << ", ";
+                }
+            }
+            std::cout << std::endl;
+            return UnfitUsers;
         }
 
         void GetFullStats() {
@@ -726,9 +765,12 @@ class UserStats {
             // Initialize a USNavyMethod HeathAssistant object
             HealthAssistant* ha = new USNavyMethod();
             
-            stat.healthyUsNavyMale = GetHealthyUsers("UsNavy", "male").size();
-            stat.healthyUsNavyFemale = GetHealthyUsers("UsNavy", "female").size();
+            stat.healthyUsNavyMale = GetHealthyUsers("USNavy", "male").size();
+            stat.healthyUsNavyFemale = GetHealthyUsers("USNavy", "female").size();
             stat.healthyUsNavy = stat.healthyUsNavyMale + stat.healthyUsNavyFemale;
+            stat.totalUsNavyMale =ha->allUsers("male").size();
+            stat.totalUsNavyFemale = ha->allUsers("female").size();
+            stat.totalUsNavy = stat.totalUsNavyMale + stat.totalUsNavyFemale;
 
             // Initialize a BmiMethod HealthAssistant object
             ha = new BmiMethod();
@@ -736,10 +778,14 @@ class UserStats {
             stat.healthyBmiMale = GetHealthyUsers("bmi", "male").size();
             stat.healthyBmiFemale = GetHealthyUsers("bmi", "female").size();
             stat.healthyBmi = stat.healthyBmiMale + stat.healthyBmiFemale;
+            stat.totalBmiMale = ha->allUsers("male").size();
+            stat.totalBmiFemale = ha->allUsers("female").size();
+            stat.totalBmi = stat.totalBmiMale + stat.totalBmiFemale;
+
 
             // Count the number of total users
-            stat.totalMale =ha->allUsers("male").size();
-            stat.totalFemale = ha->allUsers("female").size();
+            stat.totalMale = stat.totalBmiMale + stat.totalUsNavyMale;
+            stat.totalFemale = stat.totalBmiFemale + stat.totalUsNavyFemale;
             stat.totalUsers = stat.totalMale + stat.totalFemale;
 
             // Display the statistics
@@ -747,26 +793,17 @@ class UserStats {
         }
 
         void displayStats(Stats stat) {
+            std::cout << "\nTotal number of users: " << stat.totalUsers << std::endl;
+            std::cout << "Male users: " << stat.totalMale << "/" << stat.totalUsers << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.totalMale) / stat.totalUsers * 100 << "%" << std::endl;
+            std::cout << "Female users: " << stat.totalFemale << "/" << stat.totalUsers << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.totalFemale) / stat.totalUsers * 100 << "%\n" << std::endl;
+            
+            std::cout << "Healthy users (BMI method): " << stat.healthyBmi << "/" << stat.totalBmi << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.healthyBmi) / stat.totalBmi * 100 << "%" << std::endl;
+            std::cout << "Healthy males (BMI method): " << stat.healthyBmiMale << "/" << stat.totalBmiMale << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.healthyBmiMale) / stat.totalBmiMale * 100 << "%" << std::endl;
+            std::cout << "Healthy females (BMI method): " << stat.healthyBmiFemale << "/" << stat.totalBmiFemale << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.healthyBmiFemale) / stat.totalBmiFemale * 100 << "%\n" << std::endl;
 
-            std::cout << "Total number of users: " 
-                      << stat.totalUsers << std::endl;
-            std::cout << "Percentage of male users: " 
-                      << ((stat.totalMale/stat.totalUsers)*100) << "%" << std::endl;
-            std::cout << "Percentage of female users: " 
-                      << ((stat.totalFemale/stat.totalUsers)*100) 
-                      << "%" << std::endl;
-            std::cout << "Percentage of healthy users (BMI method): " 
-                      << stat.healthyBmi << "%" << std::endl;
-            std::cout << "Percentage of healthy males (BMI method): " 
-                      << ((stat.healthyBmiMale/stat.healthyBmi)*100) << "%" << std::endl;
-            std::cout << "Percentage of healthy females (BMI method): " 
-                      << ((stat.healthyBmiFemale/stat.healthyBmi)*100) << "%" << std::endl;
-            std::cout << "Percentage of healthy users (US Navy method): " 
-                      << stat.healthyUsNavy << "%" << std::endl;
-            std::cout << "Percentage of healthy males (US Army method): " 
-                      << ((stat.healthyUsNavyMale/stat.healthyUsNavy)*100) << "%" << std::endl;
-            std::cout << "Percentage of healthy females (US Army method): "
-                      << ((stat.healthyUsNavyFemale/stat.healthyUsNavy)*100) << "%" << std::endl;
+            std::cout << "Healthy users (US Navy method): " << stat.healthyUsNavy << "/" << stat.totalUsNavy << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.healthyUsNavy) / stat.totalUsNavy * 100 << "%" << std::endl;
+            std::cout << "Healthy males (US Army method): " << stat.healthyUsNavyMale << "/" << stat.totalUsNavyMale << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.healthyUsNavyMale) / stat.totalUsNavyMale * 100 << "%" << std::endl;
+            std::cout << "Healthy females (US Army method): " << stat.healthyUsNavyFemale << "/" << stat.totalUsNavyFemale << " = " << std::fixed << std::setprecision(1) << static_cast<double>(stat.healthyUsNavyFemale) / stat.totalUsNavyFemale * 100 << "%" << std::endl;
         }
 
 };
@@ -778,7 +815,7 @@ int main() {
     HealthAssistant* ha = new USNavyMethod();
     std::string userInput;
 
-    ha->readFromFile("users.csv");
+    ha->readFromFile("C:/Users/Noah/Code/cpp-mini-projects/health_assistant_v3/users.csv");
     ha->display("all");
     ha->getBfp("john");
     ha->getDailyCalories("john");
@@ -787,7 +824,7 @@ int main() {
     delete ha;
     ha = new BmiMethod();
 
-    ha->readFromFile("users.csv");
+    ha->readFromFile("C:/Users/Noah/Code/cpp-mini-projects/health_assistant_v3/users.csv");
     ha->display("all");
     ha->getBfp("john");
     ha->getDailyCalories("john");
@@ -799,10 +836,12 @@ int main() {
     ha = new USNavyMethod();
     ha->massLoadAndCompute("us_user_data.csv");
     ha->display("all");
+    ha->serialize("us_user_data.csv");
     delete ha;
     ha = new BmiMethod();
     ha->massLoadAndCompute("bmi_user_data.csv");
     ha->display("all");
+    ha->serialize("bmi_user_data.csv");
     delete ha;
     UserStats stat;
     stat.GetHealthyUsers("bmi", "female");
