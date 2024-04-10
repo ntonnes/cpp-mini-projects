@@ -1,0 +1,3 @@
+name,gender,age,weight,waist,neck,height,hip,bfp,group,calories,carbs,protein,fat,lifestyle
+john,male,25,70,80,38,180,0,12,normal,3000,375,225,66.6667,active
+jack,male,45,90,100,42,175,0,0,none,0,0,0,0,moderate
