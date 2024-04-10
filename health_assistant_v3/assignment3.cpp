@@ -523,6 +523,8 @@ class HealthAssistant {
             mymanager.setCarbs(username, (calories * carb_percent) / carb_calories);
             mymanager.setProtein(username, (calories * protein_percent) / protein_calories);
             mymanager.setFat(username, (calories * fat_percent) / fat_calories);
+
+            std::cout << "\nMacrnutrient breakdown in calories for " << username << " has been calculated successfully." << std::endl;
         }
 
         /** Overwrites the static UserInfo vector 'mylist' with user information from a .csv file, then updates all users' calculated information
@@ -775,18 +777,8 @@ UserInfoManager HealthAssistant::mymanager = UserInfoManager();
 int main() {
     HealthAssistant* ha = new USNavyMethod();
     std::string userInput;
-    // Loop until the user inputs "exit"
-    while (true) {
-        // Get user details
-        ha->getUserDetail();
-        // Ask for user input
-        std::cout << "Enter 'exit' to quit, or press Enter to continue:";
-        std::getline(std::cin, userInput);
-        // Check if the user wants to exit
-        if (userInput == "exit") {
-            break; // Exit the loop
-        }
-    }
+
+    ha->readFromFile("users.csv");
     ha->display("all");
     ha->getBfp("john");
     ha->getDailyCalories("john");
@@ -794,18 +786,8 @@ int main() {
     ha->serialize("us_user_data.csv");
     delete ha;
     ha = new BmiMethod();
-    // Loop until the user inputs "exit"
-    while (true) {
-        // Get user details
-        ha->getUserDetail();
-        // Ask for user input
-        std::cout << "Enter 'exit' to quit, or press Enter to continue:";
-        std::getline(std::cin, userInput);
-        // Check if the user wants to exit
-        if (userInput == "exit") {
-        break; // Exit the loop
-        }
-    }
+
+    ha->readFromFile("users.csv");
     ha->display("all");
     ha->getBfp("john");
     ha->getDailyCalories("john");
