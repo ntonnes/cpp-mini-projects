@@ -1,9 +1,2 @@
 name,gender,age,weight,waist,neck,height,hip,bfp,group,calories,carbs,protein,fat,lifestyle
-john,male,25,70,80,38,180,0,21,healthy weight,3000,375,225,66.6667,active
-Sarah,female,30,60,70,32,165,90,22,healthy weight,2000,250,150,44.4444,sedentary
-Emma,female,55,65,75,34,160,95,25,overweight,2000,250,150,44.4444,active
-David,male,35,80,90,40,185,0,23,healthy weight,2200,275,165,48.8889,sedentary
-Sophia,female,40,70,80,36,170,100,24,healthy weight,2000,250,150,44.4444,moderate
-Alex,male,30,75,85,39,175,0,24,healthy weight,3000,375,225,66.6667,active
-Megan,female,35,65,75,33,170,95,22,healthy weight,1800,225,135,40,sedentary
-James,male,50,85,95,41,180,0,26,overweight,2500,312.5,187.5,55.5556,moderate
+john,male,44,44,44,44,44,0,227,obesity,2800,350,210,62.2222,active
